@@ -1,16 +1,33 @@
-Script for training the DNABERT model for AS effect prediction. \
-The model adds an 1-layer FC net on top of the token/sequence embedding of DNABERT to predict whether the center SNP is sensitive to AS effects. \
-Uses pre-trained DNABERT weights.
+# entexBERT
+
+Repository containing code for training entexBERT, a modified DNABERT model for prediction of allele-specific behavior.
+
+The model adds a fully-connected neural net layer on top of the token/sequence embedding of DNABERT to predict whether the single-nucleotide polymorphism located at the center of the window is sensitive to allele-specific effects. The pre-trained weights from DNABERT are used for entexBERT.
 
 ## Requirements
-DNABERT (https://github.com/jerryji1993/DNABERT) \
-pytorch                   1.7.1 \
-cudatoolkit               11.0.221
 
-## Example
-KMER: 3, 4, 5 or 6\
-MODEL_PATH: where the pre-trained DNABERT model is located \
-python3 1.ft_bert.py \
+This project builds off of [DNABERT](https://github.com/jerryji1993/DNABERT), which should be installed according to the instructions found at the linked repository. Additionally, we use `pytorch==1.10.2` and `cudatoolkit==11.3.1`.
+
+## Usage
+
+Save the `.py` files from this repository in the same directory as the DNABERT training and finetuning scripts.
+
+### Data
+
+Each of `train.txt`, `test.txt`, and `dev.txt` should contain a sequence in kmer format, followed by a (0/1) label. Refer to [this](https://github.com/jerryji1993/DNABERT/blob/master/examples/sample_data/pre/6_3k.txt) file from the DNABERT repository for a sizable example.
+
+### Training
+
+`KMER`: 3, 4, 5 or 6
+
+`MODEL_PATH`: where the pre-trained DNABERT model is located
+
+`DATA_PATH`: where the train, test, and dev data sets are stored
+
+Determine other hyperparameters according to your use case.
+
+```bash
+python3 entexbert_ft.py \
     --model_type ${model} \
     --tokenizer_name=dna$KMER \
     --model_name_or_path \$MODEL_PATH \
@@ -36,3 +53,42 @@ python3 1.ft_bert.py \
     --n_process 8 \
     --pred_layer ${layer} \
     --seed ${seed}
+```
+
+### Testing
+
+`PREDICTION_PATH` specifies where you would like to store predictions.
+
+```bash
+python3 entexbert_ft.py \
+    --model_type ${model} \
+    --tokenizer_name=dna$KMER \
+    --model_name_or_path $MODEL_PATH \
+    --task_name dnaprom \
+    --do_predict \
+    --data_dir $DATA_PATH  \
+    --max_seq_length ${seq_len} \
+    --per_gpu_pred_batch_size=${batch}   \
+    --output_dir $MODEL_PATH \
+    --predict_dir $PREDICTION_PATH \
+    --n_process 8
+```
+
+### Visualization
+
+```bash
+python3 entexbert_ft.py \
+    --model_type ${model} \
+    --tokenizer_name=dna$KMER \
+    --model_name_or_path $MODEL_PATH \
+    --task_name dnaprom \
+    --do_visualize \
+    --visualize_data_dir $DATA_PATH \
+    --visualize_models $KMER \
+    --data_dir $DATA_PATH  \
+    --max_seq_length ${seq_len} \
+    --per_gpu_pred_batch_size=${batch}   \
+    --output_dir $MODEL_PATH \
+    --predict_dir $PREDICTION_PATH \
+    --n_process 8
+```
