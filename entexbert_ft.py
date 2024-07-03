@@ -81,6 +81,7 @@ from finetune_models import BertForMultilabelSequenceClassification, BertForSNPC
 from utils_glue import (compute_metrics, convert_examples_to_features,
                         output_modes, processors)
 
+
 try:
     from torch.utils.tensorboard import SummaryWriter
 except ImportError:
@@ -110,6 +111,7 @@ MODEL_CLASSES = {
 }
                     
 TOKEN_ID_GROUP = ["bert", "dnalong", "dnalongcat", "xlnet", "albert"] 
+
 
 def set_seed(args):
     random.seed(args.seed)
@@ -153,6 +155,7 @@ def _rotate_checkpoints(args, checkpoint_prefix="checkpoint", use_mtime=False) -
     for checkpoint in checkpoints_to_be_deleted:
         logger.info("Deleting older checkpoint [{}] due to args.save_total_limit".format(checkpoint))
         shutil.rmtree(checkpoint)
+
 
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
@@ -231,7 +234,10 @@ def train(args, train_dataset, model, tokenizer):
     # Check if continuing training from a checkpoint
     if os.path.exists(args.model_name_or_path):
         # set global_step to gobal_step of last saved checkpoint from model path
-        global_step = int(args.model_name_or_path.split("-")[-1].split("/")[0])
+        try:
+            global_step = int(args.model_name_or_path.split("-")[-1].split("/")[0])
+        except:
+            global_step = 0
         epochs_trained = global_step // (len(train_dataloader) // args.gradient_accumulation_steps)
         steps_trained_in_current_epoch = global_step % (len(train_dataloader) // args.gradient_accumulation_steps)
 
@@ -300,7 +306,6 @@ def train(args, train_dataset, model, tokenizer):
                     ):  # Only evaluate when single GPU otherwise metrics may not average well
                         results = evaluate(args, model, tokenizer)
 
-
                         if args.task_name == "dna690":
                             # record the best auc
                             if results["auc"] > best_auc:
@@ -318,7 +323,6 @@ def train(args, train_dataset, model, tokenizer):
                             if stop_count == args.early_stop:
                                 logger.info("Early stop")
                                 return global_step, tr_loss / global_step
-
 
                         for key, value in results.items():
                             eval_key = "eval_{}".format(key)
@@ -377,7 +381,6 @@ def evaluate(args, model, tokenizer, prefix="", evaluate=True):
     eval_outputs_dirs = (args.output_dir, args.output_dir + "-MM") if args.task_name == "mnli" else (args.output_dir,)
     if args.task_name[:3] == "dna":
         softmax = torch.nn.Softmax(dim=1)
-        
 
     results = {}
     for eval_task, eval_output_dir in zip(eval_task_names, eval_outputs_dirs):
@@ -443,7 +446,7 @@ def evaluate(args, model, tokenizer, prefix="", evaluate=True):
         else:
             result = compute_metrics(eval_task, preds, out_label_ids, probs)
         results.update(result)
-        
+
         if args.task_name == "dna690":
             eval_output_dir = args.result_dir
             if not os.path.exists(args.result_dir): 
@@ -466,7 +469,6 @@ def evaluate(args, model, tokenizer, prefix="", evaluate=True):
         return results, eval_task, preds, out_label_ids, probs
     else:
         return results
-
 
 
 def predict(args, model, tokenizer, prefix=""):
@@ -537,7 +539,7 @@ def predict(args, model, tokenizer, prefix=""):
             result = compute_metrics(pred_task, preds, out_label_ids, probs[:,1])
         else:
             result = compute_metrics(pred_task, preds, out_label_ids, probs)
-        
+
         pred_output_dir = args.predict_dir
         if not os.path.exists(pred_output_dir):
                os.makedir(pred_output_dir)
@@ -567,7 +569,6 @@ def visualize(args, model, tokenizer, kmer, prefix=""):
     if not os.path.exists(args.predict_dir):
         os.makedirs(args.predict_dir)
     softmax = torch.nn.Softmax(dim=1)
-    
 
     for pred_task, pred_output_dir in zip(pred_task_names, pred_outputs_dirs):
         '''
@@ -576,8 +577,7 @@ def visualize(args, model, tokenizer, kmer, prefix=""):
         else:
             args.data_dir = deepcopy(args.visualize_data_dir).replace("/690", "/690/" + str(kmer))
         '''
-            
-            
+ 
         evaluate = False if args.visualize_train else True
         pred_dataset = load_and_cache_examples(args, pred_task, tokenizer, evaluate=evaluate)
 
@@ -605,7 +605,7 @@ def visualize(args, model, tokenizer, kmer, prefix=""):
         else:
             preds = np.zeros([len(pred_dataset),3])
         attention_scores = np.zeros([len(pred_dataset), 12, args.max_seq_length, args.max_seq_length])
-        
+
         for index, batch in enumerate(tqdm(pred_dataloader, desc="Predicting")):
             model.eval()
             batch = tuple(t.to(args.device) for t in batch)
@@ -620,7 +620,6 @@ def visualize(args, model, tokenizer, kmer, prefix=""):
                 attention = outputs[-1][-1]
                 _, logits = outputs[:2]
 
-                
                 preds[index*batch_size:index*batch_size+len(batch[0]),:] = logits.detach().cpu().numpy()
                 attention_scores[index*batch_size:index*batch_size+len(batch[0]),:,:,:] = attention.cpu().numpy()
                 # if preds is None:
@@ -632,7 +631,7 @@ def visualize(args, model, tokenizer, kmer, prefix=""):
                 #     attention_scores = np.concatenate((attention_scores, attention.cpu().numpy()), 0)
                 # else:
                 #     attention_scores = attention.cpu().numpy()
-        
+
         if args.task_name != "dnasplice":
             probs = softmax(torch.tensor(preds, dtype=torch.float32))[:,1].numpy()
         else:
@@ -659,17 +658,14 @@ def visualize(args, model, tokenizer, kmer, prefix=""):
                     real_scores[i+j] += score
             real_scores = real_scores / counts
             real_scores = real_scores / np.linalg.norm(real_scores)
-            
-        
+
             # print(index)
             # print(real_scores)
             # print(len(real_scores))
 
             scores[index] = real_scores
-        
 
     return scores, probs
-
 
 
 def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False):
@@ -713,7 +709,6 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False):
             processor.get_test_examples(args.data_dir) if test else processor.get_dev_examples(args.data_dir) if evaluate else processor.get_train_examples(args.data_dir)
         )   
 
-        
         print("finish loading examples")
 
         # params for convert_examples_to_features
@@ -721,7 +716,6 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False):
         pad_on_left = bool(args.model_type in ["xlnet"])
         pad_token = tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0]
         pad_token_segment_id = 4 if args.model_type in ["xlnet"] else 0
-
 
         if args.n_process == 1:
             features = convert_examples_to_features(
@@ -733,7 +727,7 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False):
             pad_on_left=pad_on_left,  # pad on the left for xlnet
             pad_token=pad_token,
             pad_token_segment_id=pad_token_segment_id,)
-                
+
         else:
             n_proc = int(args.n_process)
             if evaluate:
@@ -747,20 +741,19 @@ def load_and_cache_examples(args, task, tokenizer, evaluate=False, test=False):
                     indexes.append(len_slice*(i))
                 else:
                     indexes.append(len(examples))
-           
+
             results = []
-            
+
             for i in range(n_proc):
                 results.append(p.apply_async(convert_examples_to_features, args=(examples[indexes[i]:indexes[i+1]], tokenizer, max_length, None, label_list, output_mode, pad_on_left, pad_token, pad_token_segment_id, True,  )))
                 print(str(i+1) + ' processor started !')
-            
+
             p.close()
             p.join()
 
             features = []
             for result in results:
                 features.extend(result.get())
-                    
 
         if args.local_rank in [-1, 0]:
             logger.info("Saving features into cached file %s", cached_features_file)
@@ -962,7 +955,6 @@ def main():
     )
     parser.add_argument("--seed", type=int, default=42, help="random seed for initialization")
 
-
     parser.add_argument(
         "--fp16",
         action="store_true",
@@ -978,7 +970,6 @@ def main():
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
     parser.add_argument("--server_ip", type=str, default="", help="For distant debugging.")
     parser.add_argument("--server_port", type=str, default="", help="For distant debugging.")
-
 
     args = parser.parse_args()
 
@@ -1256,11 +1247,10 @@ def main():
                 all_probs += probs
                 cat_probs = np.concatenate((cat_probs, probs), axis=1)
             print(cat_probs[0])
-        
 
         all_probs = all_probs / 4.0
         all_preds = np.argmax(all_probs, axis=1)
-        
+
         # save label and data for stuck ensemble
         labels = np.array(out_label_ids)
         labels = labels.reshape(labels.shape[0],1)
@@ -1282,10 +1272,6 @@ def main():
         logger.info("***** Ensemble results {} *****".format(prefix))
         for key in sorted(ensemble_results.keys()):
             logger.info("  %s = %s", key, str(ensemble_results[key]))    
-
-
-            
-
 
     return results
 

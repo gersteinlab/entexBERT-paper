@@ -326,6 +326,3 @@ class BertForMultilabelSequenceClassification(BertForSequenceClassification):
             outputs = (loss,) + outputs
         
         return outputs
-
-    
-    
