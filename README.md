@@ -10,7 +10,7 @@ This project builds off of [DNABERT](https://github.com/jerryji1993/DNABERT), wh
 
 ## Usage
 
-Save the `.py` files from this repository in the same directory as the DNABERT training and finetuning scripts.
+Save the `.py` files from this repository in the same directory as the DNABERT training and finetuning scripts. Sample bash scripts for [training](#training), [testing](#testing), and [visualizing](#visualization) model outputs are provided below.
 
 ### Data
 
@@ -24,7 +24,7 @@ Each of `train.txt`, `test.txt`, and `dev.txt` should contain a sequence in kmer
 
 `DATA_PATH`: where the train, test, and dev data sets are stored
 
-Determine other hyperparameters according to your use case.
+Set other hyperparameters according to your use case.
 
 ```bash
 python3 entexbert_ft.py \
