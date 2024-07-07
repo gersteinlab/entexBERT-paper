@@ -10,13 +10,21 @@ This project builds off of [DNABERT](https://github.com/jerryji1993/DNABERT), wh
 
 ## Usage
 
-Save the `.py` files from this repository in the same directory as the DNABERT training and finetuning scripts. Sample bash scripts for [training](#training), [testing](#testing), and [visualizing](#visualization) model outputs are provided below.
+Save the `.py` files from this repository in the same directory as the DNABERT training and finetuning scripts. Sample bash scripts for [training/fine-tuning](#fine-tuning), [testing](#testing), and [visualizing](#visualization) model outputs are provided below.
 
 ### Data
 
-Each of `train.txt`, `test.txt`, and `dev.txt` should contain a sequence in kmer format, followed by a (0/1) label. Refer to [this](https://github.com/jerryji1993/DNABERT/blob/master/examples/sample_data/pre/6_3k.txt) file from the DNABERT repository for a sizable example.
+Each of `train.txt`, `test.txt`, and `dev.txt` should contain rows where each row consists of a sequence in kmer format followed by a (0/1) label.
 
-### Training
+Refer to the sample data directory `/model/` in this repository for the format required by the model. The DNABERT repository also provides [some sample data](https://github.com/jerryji1993/DNABERT/blob/master/examples/sample_data/pre/6_3k.txt)
+
+The sample provided in this repository as well as data used for the paper is generated from the [EN-TEx data set](https://www.encodeproject.org/search/?type=Reference&internal_tags=ENTEx).
+
+### Model
+
+Pre-trained DNABERT models can be found [here](https://github.com/jerryji1993/DNABERT?tab=readme-ov-file#32-download-pre-trained-dnabert). Then, fine-tune according to instructions in [this section](#fine-tuning).
+
+### Fine-tuning
 
 `KMER`: 3, 4, 5 or 6
 
