@@ -1,6 +1,6 @@
 # entexBERT
 
-Repository containing code for training entexBERT, a modified DNABERT model for prediction of allele-specific behavior.
+Repository containing code for training entexBERT, a fine-tuned DNABERT model with a classifier for the prediction of allele-specific behavior.
 
 The model adds a fully-connected neural net layer on top of the token/sequence embedding of DNABERT to predict whether the single-nucleotide polymorphism located at the center of the window is sensitive to allele-specific effects. The pre-trained weights from DNABERT are used for entexBERT.
 
