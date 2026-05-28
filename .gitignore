@@ -1,0 +1,14 @@
+entexBERT-1_tests
+entexBERT-1_tests/results/cls_control_10k/jitter_16/model/pytorch_model.bin
+entexBERT-1_tests/results/ctcf_enc01_compare_10k/dnabert1_cls_centered/model/pytorch_model.bin
+entexBERT-1_tests/results/ctcf_enc01_compare_10k/entexbert_dnasnp_centered/model/pytorch_model.bin
+entexBERT-1_tests/results/ctcf_enc01_compare_10k/entexbert_dnasnp_jitter64/model/pytorch_model.bin
+entexBERT-1_tests/results/ctcf_enc01_compare_uncapped/dnabert1_cls_centered/model/pytorch_model.bin
+entexBERT-1_tests/results/ctcf_enc01_compare_uncapped/entexbert_dnasnp_centered/model/pytorch_model.bin
+entexBERT-1_tests/results/ctcf_enc01_compare_uncapped/entexbert_dnasnp_jitter64/model/pytorch_model.bin
+entexBERT-1_tests/results/jitter_exp_10k/jitter_16/model/pytorch_model.bin
+entexBERT-1_tests/results/shift_exp_10k/offset_0/model/pytorch_model.bin
+entexBERT-1_tests/results/shift_exp_10k/offset_16/model/pytorch_model.bin
+entexBERT-1_tests/results/shift_exp_10k/offset_32/model/pytorch_model.bin
+entexBERT-1_tests/results/shift_exp_10k/offset_64/model/pytorch_model.bin
+entexBERT-1_tests/results/shift_exp_10k/offset_m16/model/pytorch_model.bin
